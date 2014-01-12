@@ -33,8 +33,6 @@ for _, p in ipairs({"ppp", "pptp", "pppoe", "pppoa", "3g", "l2tp"}) do
 			return luci.i18n.translate("UMTS/GPRS/EV-DO")
 		elseif p == "pppoe" then
 			return luci.i18n.translate("PPPoE")
-		elseif p == "pppoa" then
-			return luci.i18n.translate("PPPoATM")
 		elseif p == "l2tp" then
 			return luci.i18n.translate("L2TP")
 		end
@@ -53,17 +51,13 @@ for _, p in ipairs({"ppp", "pptp", "pppoe", "pppoa", "3g", "l2tp"}) do
 			return "ppp-mod-pptp"
 		elseif p == "pppoe" then
 			return "ppp-mod-pppoe"
-		elseif p == "pppoa" then
-			return "ppp-mod-pppoa"
 		elseif p == "l2tp" then
 			return "xl2tpd"
 		end
 	end
 
 	function proto.is_installed(self)
-		if p == "pppoa" then
-			return (nixio.fs.glob("/usr/lib/pppd/*/pppoatm.so")() ~= nil)
-		elseif p == "pppoe" then
+		if p == "pppoe" then
 			return (nixio.fs.glob("/usr/lib/pppd/*/rp-pppoe.so")() ~= nil)
 		elseif p == "pptp" then
 			return (nixio.fs.glob("/usr/lib/pppd/*/pptp.so")() ~= nil)
