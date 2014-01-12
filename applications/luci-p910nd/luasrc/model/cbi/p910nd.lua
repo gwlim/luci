@@ -16,8 +16,8 @@ local uci = luci.model.uci.cursor_state()
 local net = require "luci.model.network"
 local m, s, p, b
 
-m = Map("p910nd", translate("p910nd - Printer server"),
-        translatef("First you have to install the packages to get support for USB (kmod-usb-printer) or parallel port (kmod-lp)."))
+m = Map("p910nd", translate("Printer server"),
+        translatef("p910nd Printer Server is a small non-spooling printer daemon intended for disk-less workstations."))
 
 net = net.init(m.uci)
 
@@ -25,7 +25,7 @@ s = m:section(TypedSection, "p910nd", translate("Settings"))
 s.addremove = true
 s.anonymous = true
 
-s:option(Flag, "enabled", translate("enable"))
+s:option(Flag, "enabled", translate("Enable"))
 
 s:option(Value, "device", translate("Device")).rmempty = true
 
