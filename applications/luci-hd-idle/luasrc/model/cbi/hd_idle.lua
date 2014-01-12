@@ -16,7 +16,7 @@ $Id$
 require("nixio.fs")
 
 m = Map("hd-idle", "hd-idle",
-	translate("hd-idle is a utility program for spinning-down external " ..
+	translate("HD-Idle is a utility program for spinning-down external " ..
 		"disks after a period of idle time."))
 
 s = m:section(TypedSection, "hd-idle", translate("Settings"))

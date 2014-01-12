@@ -22,6 +22,6 @@ function index()
 
 	local page
 
-	page = entry({"admin", "services", "hd_idle"}, cbi("hd_idle"), _("hd-idle"), 60)
+	page = entry({"admin", "services", "hd_idle"}, cbi("hd_idle"), _("HD-Idle"), 60)
 	page.dependent = true
 end
