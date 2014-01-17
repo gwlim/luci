@@ -16,7 +16,7 @@ local uci = luci.model.uci.cursor_state()
 local net = require "luci.model.network"
 local m, s, p, b
 
-m = Map("p910nd", translate("Printer server"),
+m = Map("p910nd", translate("Printer Server"),
         translatef("p910nd Printer Server is a small non-spooling printer daemon intended for disk-less workstations."))
 
 net = net.init(m.uci)

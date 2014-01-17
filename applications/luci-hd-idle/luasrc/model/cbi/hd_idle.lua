@@ -15,7 +15,7 @@ $Id$
 
 require("nixio.fs")
 
-m = Map("hd-idle", "hd-idle",
+m = Map("hd-idle", "HD-Idle",
 	translate("HD-Idle is a utility program for spinning-down external " ..
 		"disks after a period of idle time."))
 
