@@ -247,6 +247,19 @@ if hwtype == "mac80211" then
 
 	s:taboption("advanced", Value, "frag", translate("Fragmentation Threshold"))
 	s:taboption("advanced", Value, "rts", translate("RTS/CTS Threshold"))
+
+	log_level = s:taboption("advanced", ListValue, "log_level", translate("Logging Level"))
+	log_level.optional = true
+	log_level:value("2", "Informational Message")
+	log_level:value("0", "Verbose Debugging")
+	log_level:value("1", "Debugging")
+	log_level:value("3", "Notification")
+	log_level:value("4", "Warning")
+
+	beacon_int = s:taboption("advanced", Value, "beacon_int", translate("Beacon Interval"),"(15 - 65535)")
+	beacon_int.optional = true
+	beacon_int.placeholder = 100
+
 end
 
 
@@ -447,7 +460,7 @@ if hwtype == "mac80211" then
 		mode:value("mesh", "802.11s")
 	end
 
-	mode:value("ahdemo", translate("Pseudo Ad-Hoc (ahdemo)"))
+	mode:value("ahdemo", translate("Pseudo Ad-Hoc (AHdemo)"))
 	mode:value("monitor", translate("Monitor"))
 	bssid:depends({mode="adhoc"})
 	bssid:depends({mode="sta"})
@@ -503,6 +516,17 @@ if hwtype == "mac80211" then
 	wmm:depends({mode="ap"})
 	wmm:depends({mode="ap-wds"})
 	wmm.default = wmm.enabled
+	
+	short_preamble = s:taboption("general", Flag, "short_preamble", translate("Short Preamble"))
+	short_preamble.default = short_preamble.enabled
+
+	isolate = s:taboption("general", Flag, "isolate", translate("Wireless Client Isolation"))
+	isolate.optional = true
+	isolate:depends({mode="ap"})
+
+	dtim_period = s:taboption("general", Value, "dtim_period", translate("DTIM Interval"),"Delivery Traffic Indication Message Interval")
+	dtim_period.optional = true
+	dtim_period.placeholder = 2
 end
 
 
