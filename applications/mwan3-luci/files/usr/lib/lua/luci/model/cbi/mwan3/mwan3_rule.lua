@@ -8,8 +8,7 @@ function rule_check() -- determine if rules needs a proper protocol configured
 			if sport ~= "" or dport ~= "" then -- ports configured
 				local proto = ut.trim(sys.exec("uci get -p /var/state mwan3." .. section[".name"] .. ".proto"))
 				if proto == "" or proto == "all" then -- no or improper protocol
-					rulestr = rulestr .. section[".name"] .. " "
-					protofix = 1
+					err_proto_list = err_proto_list .. section[".name"] .. " "
 				end
 			end
 		end
@@ -17,11 +16,11 @@ function rule_check() -- determine if rules needs a proper protocol configured
 end
 
 function rule_warn() -- display warning messages at the top of the page
-	warns = "<strong><em>Sorting of rules affects MWAN3! Rules are read from top to bottom</em></strong>"
-	if protofix == 1 then
-		warns = warns .. "<br /><br /><font color=\"ff0000\"><strong><em>WARNING: some rules are incorrectly configured with no or improper protocol specified! Please configure a specific protocol!</em></strong></font>"
+	if err_proto_list ~= "" then
+		return "<font color=\"ff0000\"><strong>WARNING: some rules have a port configured with no or improper protocol specified! Please configure a specific protocol!</strong></font>"
+	else
+		return ""
 	end
-	return warns
 end
 
 -- ------ rule configuration ------ --
@@ -30,96 +29,78 @@ dsp = require "luci.dispatcher"
 sys = require "luci.sys"
 ut = require "luci.util"
 
-protofix = 0
-rulestr = ""
+err_proto = 0
+err_proto_list = ""
 rule_check()
 
 
 m5 = Map("mwan3", translate("MWAN3 Multi-WAN traffic Rule Configuration"),
 	translate(rule_warn()))
+	m5:append(Template("mwan3/mwan3_config_css"))
 
 
 mwan_rule = m5:section(TypedSection, "rule", translate("Traffic Rules"),
-	translate("MWAN3 supports an unlimited number of rules<br />" ..
-	"Name may contain characters A-Z, a-z, 0-9, _ and no spaces<br />" ..
+	translate("Rules specify which traffic will use a particular MWAN3 policy based on IP address, port or protocol<br />" ..
+	"Rules are matched from top to bottom. Rules after matching rule are ignored. Traffic not matching any rule will be blackholed<br />" ..
+	"Names may contain characters A-Z, a-z, 0-9, _ and no spaces<br />" ..
 	"Rules may not share the same name as configured interfaces, members or policies"))
 	mwan_rule.addremove = true
 	mwan_rule.anonymous = false
 	mwan_rule.dynamic = false
+	mwan_rule.sectionhead = "Rule"
 	mwan_rule.sortable = true
 	mwan_rule.template = "cbi/tblsection"
-	mwan_rule.extedit = dsp.build_url("admin", "network", "mwan3", "rule", "%s")
+	mwan_rule.extedit = dsp.build_url("admin", "network", "mwan3", "configuration", "rule", "%s")
 	function mwan_rule.create(self, section)
 		TypedSection.create(self, section)
 		m5.uci:save("mwan3")
-		luci.http.redirect(dsp.build_url("admin", "network", "mwan3", "rule", section))
+		luci.http.redirect(dsp.build_url("admin", "network", "mwan3", "configuration", "rule", section))
 	end
 
 
 src_ip = mwan_rule:option(DummyValue, "src_ip", translate("Source address"))
 	src_ip.rawhtml = true
 	function src_ip.cfgvalue(self, s)
-		return self.map:get(s, "src_ip") or "<br /><font size=\"+4\">-</font><br />"
+		return self.map:get(s, "src_ip") or "<font size=\"+4\">-</font>"
 	end
 
 src_port = mwan_rule:option(DummyValue, "src_port", translate("Source port"))
 	src_port.rawhtml = true
 	function src_port.cfgvalue(self, s)
-		return self.map:get(s, "src_port") or "<br /><font size=\"+4\">-</font>"
+		return self.map:get(s, "src_port") or "<font size=\"+4\">-</font>"
 	end
 
 dest_ip = mwan_rule:option(DummyValue, "dest_ip", translate("Destination address"))
 	dest_ip.rawhtml = true
 	function dest_ip.cfgvalue(self, s)
-		return self.map:get(s, "dest_ip") or "<br /><font size=\"+4\">-</font>"
+		return self.map:get(s, "dest_ip") or "<font size=\"+4\">-</font>"
 	end
 
 dest_port = mwan_rule:option(DummyValue, "dest_port", translate("Destination port"))
 	dest_port.rawhtml = true
 	function dest_port.cfgvalue(self, s)
-		return self.map:get(s, "dest_port") or "<br /><font size=\"+4\">-</font>"
+		return self.map:get(s, "dest_port") or "<font size=\"+4\">-</font>"
 	end
 
 proto = mwan_rule:option(DummyValue, "proto", translate("Protocol"))
 	proto.rawhtml = true
 	function proto.cfgvalue(self, s)
-		local protocol = self.map:get(s, "proto")
-		if protofix == 0 then -- all rules have proper protocol configured
-			return protocol or "all"
-		else -- check for proper protocol
-			if ut.trim(sys.exec("echo '" .. rulestr .. "' | grep -c '" .. s .. "'")) == "0" then
-				return protocol or "all"
-			else -- ports configured and no or improper protocol
-				if protocol then
-					return "<br /><font color=\"ff0000\"><strong>" .. protocol .. "</strong></font>"
-				else
-					return "<br /><font color=\"ff0000\"><font size=\"+4\">-</font></font>"
-				end
-			end
-		end
+		return self.map:get(s, "proto") or "all"
 	end
 
 use_policy = mwan_rule:option(DummyValue, "use_policy", translate("Policy assigned"))
 	use_policy.rawhtml = true
 	function use_policy.cfgvalue(self, s)
-		local upol = self.map:get(s, "use_policy")
-		if upol then
-			if upol == "default" then
-				return "default routing table"
-			else
-				return upol
-			end
-		else
-			return "<br /><font size=\"+4\">-</font>"
-		end
+		return self.map:get(s, "use_policy") or "<font size=\"+4\">-</font>"
 	end
 
-equalize = mwan_rule:option(DummyValue, "equalize", translate("Equalize"))
-	function equalize.cfgvalue(self, s)
-		if self.map:get(s, "equalize") == "1" then
-			return "Yes"
+errors = mwan_rule:option(DummyValue, "errors", translate("Errors"))
+	errors.rawhtml = true
+	function errors.cfgvalue(self, s)
+		if sys.exec("echo '" .. err_proto_list .. "' | grep -w " .. s) == "" then
+			return ""
 		else
-			return "No"
+			return "<span title=\"No protocol specified\"><img src=\"/luci-static/resources/cbi/reset.gif\" alt=\"error\"></img></span>"
 		end
 	end
 
