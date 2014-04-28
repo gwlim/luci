@@ -12,8 +12,7 @@ function iface_check()
 			end
 		)
 		-- compare metric against list
-		local metric_dupnums = sys.exec("echo '" .. metric_list .. "' | awk -F' ' '{ print $2 }' | uniq -d")
-		local metric_dupes = ""
+		local metric_dupnums, metric_dupes = sys.exec("echo '" .. metric_list .. "' | awk -F' ' '{ print $2 }' | uniq -d"), ""
 		for line in metric_dupnums:gmatch("[^\r\n]+") do
 			metric_dupes = sys.exec("echo '" .. metric_list .. "' | grep '" .. line .. "' | awk -F' ' '{ print $1 }'")
 			err_dupmet_list = err_dupmet_list .. metric_dupes
@@ -23,10 +22,12 @@ function iface_check()
 		end
 	end
 	-- check if this interface has a higher reliability requirement than track IPs configured
-	local relnum = ut.trim(sys.exec("uci get -p /var/state mwan3." .. arg[1] .. ".reliability"))
-	local tipnum = ut.trim(sys.exec("echo $(uci get -p /var/state mwan3." .. arg[1] .. ".track_ip) | wc - w"))
-	if relnum > tipnum then
-		err_reliability = 1
+	local tipnum = tonumber(ut.trim(sys.exec("echo $(uci get -p /var/state mwan3." .. arg[1] .. ".track_ip) | wc -w")))
+	if tipnum > 0 then
+		local relnum = tonumber(ut.trim(sys.exec("uci get -p /var/state mwan3." .. arg[1] .. ".reliability")))
+		if relnum and relnum > tipnum then
+			err_reliability = 1
+		end
 	end
 	-- check if any interfaces are not properly configured in /etc/config/network or have no default route in main routing table
 	if ut.trim(sys.exec("uci get -p /var/state network." .. arg[1])) == "interface" then
@@ -47,10 +48,9 @@ function iface_check()
 end
 
 function iface_warn() -- display warning messages at the top of the page
-	local warns = ""
-	local linebrk = ""
+	local warns, linebrk = "", ""
 	if err_reliability == 1 then
-		warns = "<font color=\"ff0000\"><strong>WARNING: this interface has a higher reliability requirement than there are test IP addresses!</strong></font>"
+		warns = "<font color=\"ff0000\"><strong>WARNING: this interface has a higher reliability requirement than there are tracking IP addresses!</strong></font>"
 		linebrk = "<br /><br />"
 	end
 	if err_route == 1 then
@@ -103,15 +103,13 @@ enabled = mwan_interface:option(ListValue, "enabled", translate("Enabled"))
 	enabled:value("1", translate("Yes"))
 	enabled:value("0", translate("No"))
 
-track_ip = mwan_interface:option(DynamicList, "track_ip", translate("Test IP"),
-	translate("This IP address will be pinged to dermine if the link is up or down"))
+track_ip = mwan_interface:option(DynamicList, "track_ip", translate("Tracking IP"),
+	translate("This IP address will be pinged to dermine if the link is up or down. Leave blank to assume interface is always online"))
 	track_ip.datatype = "ipaddr"
 
-reliability = mwan_interface:option(Value, "reliability", translate("Test IP reliability"),
-	translate("This many Test IP addresses must respond for the link to be deemed up"),
-	translate("Do not specify a number higher than the ammount of Test IP addresses you have configured"),
-	translate("Acceptable values: 1-1000"))
-	reliability.datatype = "range(1, 1000)"
+reliability = mwan_interface:option(Value, "reliability", translate("Tracking reliability"),
+	translate("Acceptable values: 1-100. This many Tracking IP addresses must respond for the link to be deemed up"))
+	reliability.datatype = "range(1, 100)"
 	reliability.default = "1"
 
 count = mwan_interface:option(ListValue, "count", translate("Ping count"))
@@ -166,7 +164,7 @@ down = mwan_interface:option(ListValue, "down", translate("Interface down"),
 
 up = mwan_interface:option(ListValue, "up", translate("Interface up"),
 	translate("Downed interface will be deemed up after this many successful ping tests"))
-	up.default = "5"
+	up.default = "3"
 	up:value("1")
 	up:value("2")
 	up:value("3")
@@ -182,10 +180,10 @@ metric = mwan_interface:option(DummyValue, "metric", translate("Metric"),
 	translate("This displays the metric assigned to this interface in /etc/config/network"))
 	metric.rawhtml = true
 	function metric.cfgvalue(self, s)
-		if err_nomet == 1 then
-			return "<font size=\"+4\">-</font>"
-		else
+		if err_nomet == 0 then
 			return metcheck
+		else
+			return "&#8212;"
 		end
 	end
 

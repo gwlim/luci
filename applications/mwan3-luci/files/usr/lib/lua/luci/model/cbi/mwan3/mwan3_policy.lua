@@ -25,7 +25,7 @@ ds = require "luci.dispatcher"
 sys = require "luci.sys"
 
 toolong = 0
-err_name_list = ""
+err_name_list = " "
 policy_check()
 
 
@@ -56,15 +56,14 @@ mwan_policy = m5:section(TypedSection, "policy", translate("Policies"),
 use_member = mwan_policy:option(DummyValue, "use_member", translate("Members assigned"))
 	use_member.rawhtml = true
 	function use_member.cfgvalue(self, s)
-		local str = ""
-		local tab = self.map:get(s, "use_member")
+		local tab, str = self.map:get(s, "use_member"), ""
 		if tab then
 			for k,v in pairs(tab) do
 				str = str .. v .. "<br />"
 			end
 			return str
 		else
-			return "<font size=\"+4\">-</font>"
+			return "&#8212;"
 		end
 		
 	end
@@ -72,7 +71,7 @@ use_member = mwan_policy:option(DummyValue, "use_member", translate("Members ass
 errors = mwan_policy:option(DummyValue, "errors", translate("Errors"))
 	errors.rawhtml = true
 	function errors.cfgvalue(self, s)
-		if sys.exec("echo '" .. err_name_list .. "' | grep -w " .. s) == "" then
+		if not string.find(err_name_list, " " .. s .. " ") then
 			return ""
 		else
 			return "<span title=\"Name exceeds 15 characters\"><img src=\"/luci-static/resources/cbi/reset.gif\" alt=\"error\"></img></span>"
