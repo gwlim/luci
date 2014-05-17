@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/etc/init.d/multiwan enabled && {
+	/etc/init.d/multiwan stop
+	/etc/init.d/multiwan disable
+}
+
+rm -f /tmp/luci-indexcache
+exit 0

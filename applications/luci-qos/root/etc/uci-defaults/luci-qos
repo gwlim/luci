@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/etc/init.d/qos enabled && {
+	/etc/init.d/qos stop
+	/etc/init.d/qos disable
+}
+
+rm -f /tmp/luci-indexcache
+exit 0

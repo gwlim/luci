@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/etc/init.d/tinyproxy enabled && {
+	/etc/init.d/tinyproxy stop
+	/etc/init.d/tinyproxy disable
+}
+
+rm -f /tmp/luci-indexcache
+exit 0
