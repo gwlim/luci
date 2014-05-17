@@ -15,6 +15,8 @@ $Id$
 local fs  = require "nixio.fs"
 local sys = require "luci.sys"
 local uci = require "luci.model.uci".cursor()
+local testfullps = luci.sys.exec("ps --help 2>&1 | grep BusyBox") --check which ps do we have 
+local psstring = (string.len(testfullps)>0) and  "ps w" or  "ps axfw" --set command we use to get pid
 
 local m = Map("openvpn", translate("OpenVPN"))
 local s = m:section( TypedSection, "openvpn", translate("OpenVPN instances"), translate("Below is a list of configured OpenVPN instances and their current state") )
@@ -53,7 +55,11 @@ function s.create(self, name)
 		self.sectiontype .. ".select"
 	)
 
-	if name and not name:match("[^a-zA-Z0-9_]") then
+	name = luci.http.formvalue( 
+		luci.cbi.CREATE_PREFIX .. self.config .. "." ..
+		self.sectiontype .. ".text"
+	)
+	if string.len(name)>3 and not name:match("[^a-zA-Z0-9_]") then
 		uci:section(
 			"openvpn", "openvpn", name,
 			uci:get_all( "openvpn_recipes", recipe )
@@ -74,7 +80,7 @@ s:option( Flag, "enabled", translate("Enabled") )
 
 local active = s:option( DummyValue, "_active", translate("Started") )
 function active.cfgvalue(self, section)
-	local pid = fs.readfile("/var/run/openvpn-%s.pid" % section)
+	local pid = sys.exec("%s | grep %s | grep openvpn | grep -v grep | awk '{print $1}'" % { psstring,section} )
 	if pid and #pid > 0 and tonumber(pid) ~= nil then
 		return (sys.process.signal(pid, 0))
 			and translatef("yes (%i)", pid)
@@ -97,10 +103,12 @@ function updown.cfgvalue(self, section)
 end
 function updown.write(self, section, value)
 	if self.option == "stop" then
-		luci.sys.call("/etc/init.d/openvpn down %s" % section)
+		local pid = sys.exec("%s | grep %s | grep openvpn | grep -v grep | awk '{print $1}'" % { psstring,section} )
+		sys.process.signal(pid,15) 
 	else
-		luci.sys.call("/etc/init.d/openvpn up %s" % section)
+		luci.sys.call("/etc/init.d/openvpn start %s" % section)
 	end
+	luci.http.redirect( self.redirect )
 end
 
 local port = s:option( DummyValue, "port", translate("Port") )
