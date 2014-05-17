@@ -71,6 +71,9 @@ username = section:taboption("general", Value, "username",
 
 username:depends("_update", update.enabled)
 
+updatekey = section:taboption("general", Value, "updatekey", translate("HE.net update key"))
+updatekey.updatekey = true
+updatekey:depends("_update", update.enabled)
 
 password = section:taboption("general", Value, "password", translate("HE.net password"))
 password.password = true
