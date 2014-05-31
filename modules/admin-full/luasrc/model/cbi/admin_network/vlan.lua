@@ -24,6 +24,7 @@ m.uci:foreach("network", "switch",
 		local has_vlan    = nil
 		local has_learn   = nil
 		local has_vlan4k  = nil
+		local has_qos     = nil
 		local has_jumbo3  = nil
 		local has_mirror  = nil
 		local min_vid     = 0
@@ -69,6 +70,9 @@ m.uci:foreach("network", "switch",
 				elseif line:match(": enable_vlan4k") then
 					enable_vlan4k = true
 
+				elseif line:match(": enable_qos") then
+					has_qos = "enable_qos"
+
 				elseif line:match(": enable_vlan") then
 					has_vlan = "enable_vlan"
 
@@ -102,10 +106,16 @@ m.uci:foreach("network", "switch",
 			x.default = x.enabled
 		end
 
+		if has_qos then
+		  s:option(Flag, has_qos, "Enable QoS")
+		end
+
 		if has_jumbo3 then
-			x = s:option(Flag, has_jumbo3, translate("Enable Jumbo Frame passthrough"))
-			x.enabled = "3"
-			x.rmempty = true
+			x = s:option(ListValue, has_jumbo3, translate("Enable Jumbo Frame passthrough"))
+			x:value("0", "1522")
+			x:value("1", "1536")
+			x:value("2", "1552")
+			x:value("3", "9216")
 		end
 
 		-- Does this switch support port mirroring?
