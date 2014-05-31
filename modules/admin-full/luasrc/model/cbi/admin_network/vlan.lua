@@ -107,7 +107,8 @@ m.uci:foreach("network", "switch",
 		end
 
 		if has_qos then
-		  s:option(Flag, has_qos, "Enable QoS")
+			x = s:option(Flag, has_qos, "Enable QoS")
+			x.default = x.enabled
 		end
 
 		if has_jumbo3 then
