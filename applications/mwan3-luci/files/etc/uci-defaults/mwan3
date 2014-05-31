@@ -8,6 +8,10 @@ uci -q batch <<-EOF >/dev/null
 	commit ucitrack
 EOF
 
+/etc/init.d/mwan3 enabled && {
+	/etc/init.d/mwan3 stop
+	/etc/init.d/mwan3 disable
+}
 # make controller file addition take effect without system restart
 rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
 
