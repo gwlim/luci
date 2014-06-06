@@ -67,7 +67,7 @@ tunnelid:depends("_update", update.enabled)
 
 username = section:taboption("general", Value, "username",
 	translate("HE.net user ID"),
-	translate("This is the 32 byte hex encoded user ID, not the login name"))
+	translate("HE.net login ID"))
 
 username:depends("_update", update.enabled)
 
