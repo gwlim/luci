@@ -27,6 +27,14 @@ define Package/luci-app-mwan3/description
 MWAN3 LuCI configuration module. MWAN3 is a hotplug script that makes configuration of multiple WAN interfaces simple, easy and manageable. With load balancing support, connection tracking with failover and an easy to manage traffic ruleset. The MWAN3 application is maintained by Jeroen Louwes <jeroen.louwes@gmail.com>
 endef
 
+MAKE_FLAGS += \
+	MODULES="$(LUCI_SELECTED_MODULES)" \
+	LUA_TARGET="$(LUA_TARGET)" \
+	LUA_SHLIBS="-llua -lm -ldl -lcrypt" \
+	CFLAGS="$(TARGET_CFLAGS) $(LUCI_CFLAGS) -I$(STAGING_DIR)/usr/include" \
+	LDFLAGS="$(TARGET_LDFLAGS) -L$(STAGING_DIR)/usr/lib" \
+	NIXIO_TLS="$(NIXIO_TLS)" OS="Linux"
+
 define Build/Compile
 endef
 
