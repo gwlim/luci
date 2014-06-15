@@ -14,7 +14,7 @@ all: build
 build: gccbuild luabuild
 
 gccbuild:
-	make -C libs/web CC="cc" CFLAGS="" LDFLAGS="" SDK="$(shell test -f .running-sdk && echo 1)" host-install
+	make -C modules/base CC="cc" CFLAGS="" LDFLAGS="" SDK="$(shell test -f .running-sdk && echo 1)" host-install
 	for i in $(MODULES); do \
 		make -C$$i SDK="$(shell test -f .running-sdk && echo 1)" compile || { \
 			echo "*** Compilation of $$i failed!"; \
@@ -33,7 +33,7 @@ i18nbuild:
 clean:
 	rm -f .running-sdk
 	rm -rf docs
-	make -C libs/web host-clean
+	make -C modules/base host-clean
 	for i in $(MODULES); do make -C$$i clean; done
 
 
@@ -59,9 +59,6 @@ sdk:
 
 ucidefaults:
 	build/hostenv.sh $(realpath host) $(LUA_MODULEDIR) $(LUA_LIBRARYDIR) "$(realpath host)/bin/uci-defaults --exclude luci-freifunk-*"
-
-runhttpd: hostenv
-	build/hostenv.sh $(realpath host) $(LUA_MODULEDIR) $(LUA_LIBRARYDIR) "lua build/lucid.lua"
 
 runuhttpd: hostenv
 	cp $(realpath build)/luci.cgi $(realpath host)/www/cgi-bin/luci
@@ -92,11 +89,8 @@ run:
 	#	make run is deprecated				#
 	#	Please use:					#
 	#							#
-	#	To run LuCI WebUI using LuCIttpd		#
-	#	make runhttpd					#
-	#							#
-	#	To run LuCI WebUI using Boa/Webuci		#
-	#	make runboa 					#
+	#	To run LuCI WebUI using uhttpd			#
+	#	make runuhttpd					#
 	#							#
 	#	To start a shell in the LuCI environment	#
 	#	make runshell					#

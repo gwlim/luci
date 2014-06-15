@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-03-25 22:10+0100\n"
-"PO-Revision-Date: 2012-07-06 13:07+0200\n"
-"Last-Translator: vojtom <mvojto@gmail.com>\n"
+"PO-Revision-Date: 2014-06-05 15:38+0200\n"
+"Last-Translator: koli <lukas.koluch@gmail.com>\n"
 "Language-Team: none\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -26,11 +26,11 @@ msgstr "Klasifikační pravidla"
 msgid "Classification group"
 msgstr "Klasifikační skupina"
 
+msgid "Comment"
+msgstr ""
+
 msgid "Destination host"
 msgstr "Cílová adresa"
-
-msgid "Downlink"
-msgstr "Stahování"
 
 msgid "Download speed (kbit/s)"
 msgstr "Rychlost stahování dat (kbit/s)"
@@ -43,9 +43,6 @@ msgstr "Poloviční duplex"
 
 msgid "Interfaces"
 msgstr "Síťová rozhraní"
-
-msgid "Internet Connection"
-msgstr "Připojení k internetu"
 
 msgid "Number of bytes"
 msgstr "Počet bytů"
@@ -71,9 +68,6 @@ msgstr "Zdrojová adresa"
 msgid "Target"
 msgstr "Cílová třída priority"
 
-msgid "Uplink"
-msgstr "Odesílání"
-
 msgid "Upload speed (kbit/s)"
 msgstr "Rychlost odesílání dat (kbit/s)"
 
@@ -87,9 +81,6 @@ msgstr ""
 
 msgid "all"
 msgstr "vše"
-
-msgid "allf"
-msgstr ""
 
 msgid "default"
 msgstr "výchozí"
@@ -106,5 +97,18 @@ msgstr "normální priorita"
 msgid "priority"
 msgstr "nejvyšší priorita (malé rámce)"
 
-msgid "qos_connbytes"
-msgstr ""
+#~ msgid "Downlink"
+#~ msgstr "Stahování"
+
+#~ msgid "Internet Connection"
+#~ msgstr "Připojení k internetu"
+
+#~ msgid "Uplink"
+#~ msgstr "Odesílání"
+
+#, fuzzy
+#~ msgid "allf"
+#~ msgstr "allf"
+
+#~ msgid "qos_connbytes"
+#~ msgstr "qos_connbytes"
