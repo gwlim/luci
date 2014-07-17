@@ -48,8 +48,6 @@ define Package/luci-base/install
 	$(PKG_BUILD_DIR)/build/mkversion.sh $(1)/usr/lib/lua/luci/version.lua \
 		"OpenWrt Firmware" \
 		"$(OPENWRTVERSION)" \
-		"trunk" \
-		"$(PKG_VERSION)"
 endef
 
 define Package/luci-base/config
