@@ -66,16 +66,28 @@ tunnelid:depends("_update", update.enabled)
 
 
 username = section:taboption("general", Value, "username",
-	translate("HE.net user ID"),
-	translate("HE.net user ID"))
+	translate("HE.net username"),
+	translate("This is the plain username for logging into the account"))
 
 username:depends("_update", update.enabled)
+username.validate = function(self, val, sid)
+	if type(val) == "string" and #val == 32 and val:match("^[a-fA-F0-9]+$") then
+		return nil, translate("The HE.net endpoint update configuration changed, you must now use the plain username instead of the user ID!")
+	end
+	return val
+end
 
+
+<<<<<<< HEAD
 updatekey = section:taboption("general", Value, "updatekey", translate("HE.net update key"))
 updatekey.updatekey = true
 updatekey:depends("_update", update.enabled)
+=======
+password = section:taboption("general", Value, "password",
+	translate("HE.net password"),
+	translate("This is either the \"Update Key\" configured for the tunnel or the account password if no update key has been configured"))
+>>>>>>> origin/master
 
-password = section:taboption("general", Value, "password", translate("HE.net password"))
 password.password = true
 password:depends("_update", update.enabled)
 
