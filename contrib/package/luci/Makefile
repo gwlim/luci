@@ -47,7 +47,7 @@ define Package/luci-base/install
 	$(call Package/luci/install/template,$(1),modules/base)
 	$(PKG_BUILD_DIR)/build/mkversion.sh $(1)/usr/lib/lua/luci/version.lua \
 		"OpenWrt Firmware" \
-		"$(OPENWRTVERSION)" \
+		"$(OPENWRTVERSION)"
 endef
 
 define Package/luci-base/config
